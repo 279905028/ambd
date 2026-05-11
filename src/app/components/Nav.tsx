@@ -1,0 +1,52 @@
+export function Nav({ onAboutClick }: { onAboutClick?: () => void } = {}) {
+  return (
+    <header className="fixed top-0 inset-x-0 z-50 px-6 md:px-10 py-5 flex items-center justify-between mix-blend-difference">
+      <a href="#top" className="flex items-center" style={{ color: 'var(--color-fg)' }} aria-label="ambd2">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 150 24"
+          width="100"
+          height="16"
+          aria-hidden="true"
+        >
+          <path
+            d="M146.282,24.188L140.47,24.188L140.47,16.452999L146.282,16.452999C151.453,16.452999,151.453,24.188,146.282,24.188ZM71.667,0L71.667,24.231001L61.966,24.231001L61.966,12.094L61.196999,12.094L58.632,24.231001L50.812,24.231001L48.205002,12.094L47.436001,12.094L47.436001,24.231001L37.735001,24.231001L37.735001,0L49.359001,0L54.701,18.205L60.084999,0.043000001C68.120003,0,52.905998,0,71.667,0ZM34.957001,0L34.957001,24.231001L25.256001,24.231001L25.256001,20.812L13.376,20.812L10.641,24.231001L0,24.231001L19.402,0L34.957001,0ZM25.214001,15.94L25.214001,6.9229999L24.444,6.9229999L17.264999,15.94L25.214001,15.94ZM99.487,24.231001L74.529999,24.231001L74.529999,0L97.607002,0C106.197,0,107.436,9.915,101.538,11.795L101.538,12.436C107.521,13.761,106.795,24.231001,99.487,24.231001ZM95.855003,16.239C95.855003,15.256,95.084999,14.487,94.102997,14.487L84.274002,14.487L84.274002,18.375999L94.102997,18.375999C95.084999,18.375999,95.855003,17.607,95.855003,16.624001L95.855003,16.239ZM95.855003,7.4790001C95.855003,6.4959998,95.084999,5.7259998,94.102997,5.7259998L84.274002,5.7259998L84.274002,9.6149998L94.102997,9.6149998C95.084999,9.6149998,95.855003,8.8459997,95.855003,7.8629999L95.855003,7.4790001ZM126.41,24.231001L107.521,24.231001L107.521,0L126.41,0C142.521,0,142.564,24.231001,126.41,24.231001ZM117,18L123,18C126.314,18,129,15.314,129,12C129,8.6859999,126.314,6,123,6L117,6L117,18Z"
+            fill="currentColor"
+          />
+        </svg>
+      </a>
+      <nav className="hidden md:flex items-center gap-10" style={{ color: 'var(--color-fg)' }}>
+        {['Works', 'About'].map((item, i) => (
+          <a
+            key={item}
+            href={item === 'About' ? '#' : '#works'}
+            onClick={(e) => {
+              if (item === 'About') {
+                e.preventDefault();
+                onAboutClick?.();
+              }
+            }}
+            className="link-underline"
+            style={{
+              fontSize: 'var(--text-small)',
+              color: 'var(--color-fg)',
+            }}
+          >
+            <span style={{ color: 'var(--color-fg-subtle)', marginRight: '0.5rem' }}>
+              0{i + 1}
+            </span>
+            {item}
+          </a>
+        ))}
+      </nav>
+      <a
+        href="mailto:hello@ambd2.studio"
+        className="link-underline"
+        style={{ fontSize: 'var(--text-small)', color: 'var(--color-fg)' }}
+      >
+        Get in touch ↗
+      </a>
+    </header>
+  );
+}
