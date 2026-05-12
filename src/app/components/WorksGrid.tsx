@@ -1,14 +1,28 @@
 import { ArrowUpRight } from 'lucide-react';
-import { projects, type ProjectData } from './projectsData';
+import type { PublicProject } from '../lib/cms';
 
-export function WorksGrid({ onSelect }: { onSelect: (p: ProjectData) => void }) {
+export function WorksGrid({
+  projects,
+  onSelect,
+}: {
+  projects: PublicProject[];
+  onSelect: (p: PublicProject) => void;
+}) {
+  if (projects.length === 0) {
+    return (
+      <section id="works" className="px-6 md:px-10 pb-32">
+        <p style={{ color: 'var(--color-fg-muted)' }}>
+          No published projects yet. Open /admin to add your first project.
+        </p>
+      </section>
+    );
+  }
+
   return (
     <section id="works" className="px-6 md:px-10 pb-32">
-      
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-20">
         {projects.map((p) => (
-          <article key={p.slug} className="flex flex-col">
+          <article key={p.id} className="flex flex-col">
             <button
               type="button"
               onClick={() => onSelect(p)}
@@ -64,7 +78,7 @@ export function WorksGrid({ onSelect }: { onSelect: (p: ProjectData) => void }) 
                       fontWeight: 400,
                     }}
                   >
-                    — {p.category}
+                    - {p.category}
                   </span>
                 </h3>
                 <p

@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
 import { X } from 'lucide-react';
-import type { ProjectData } from './projectsData';
+import type { PublicProject } from '../lib/cms';
 
 export function ProjectDetail({
   project,
   onClose,
 }: {
-  project: ProjectData;
+  project: PublicProject;
   onClose: () => void;
 }) {
   useEffect(() => {
@@ -72,7 +72,7 @@ export function ProjectDetail({
               color: 'var(--color-fg-muted)',
             }}
           >
-            — {project.category}
+            - {project.category}
           </span>
         </h1>
 
@@ -105,7 +105,7 @@ export function ProjectDetail({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {project.details.map((src, i) => (
             <div
-              key={i}
+              key={src + i}
               className="w-full aspect-[4/3] overflow-hidden"
               style={{
                 borderRadius: 'var(--radius-md)',

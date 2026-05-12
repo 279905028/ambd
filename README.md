@@ -1,39 +1,84 @@
-# AMBd2 Studio Portfolio
+# AMBd2 Portfolio + CMS
 
-这是一个基于 Vite + React + Tailwind CSS v4 的静态作品集站点，可直接推送到 GitHub，并部署到 Cloudflare Pages。
+This repository now includes:
+- Portfolio site (Vite + React).
+- Cloudflare Pages Functions API.
+- R2 image storage.
+- D1 content storage.
+- Minimal admin UI at `/admin/`.
 
-## 本地开发
+## Local development
 
 ```bash
 npm install
 npm run dev
 ```
 
-## 生产构建
+## Build
 
 ```bash
 npm run build
 ```
 
-构建产物输出到 `dist/`。
+## Cloudflare Pages build settings
 
-## 推送到 GitHub
-
-```bash
-git init
-git add .
-git commit -m "Initial portfolio site"
-git branch -M main
-git remote add origin <你的 GitHub 仓库地址>
-git push -u origin main
-```
-
-## 部署到 Cloudflare Pages
-
-在 Cloudflare Pages 里连接 GitHub 仓库后，使用以下配置：
-
+- Framework preset: `Vite`
 - Build command: `npm run build`
 - Build output directory: `dist`
+- Production branch: `main`
 - Node.js version: `20`
 
-如果你只需要静态托管，不需要额外的 Pages Functions 或 Workers 配置。
+## Required Cloudflare bindings
+
+Add these in Pages project settings:
+
+1. D1 binding  
+   - Variable name: `DB`  
+   - Database: your D1 database (for example `portfolio-cms`)
+
+2. R2 binding  
+   - Variable name: `ASSETS`  
+   - Bucket: your R2 bucket (for example `portfolio-assets`)
+
+3. Environment variables  
+   - `CMS_ADMIN_USERNAME` (optional, default is `admin`)  
+   - `CMS_ADMIN_PASSWORD` (required)  
+   - `CMS_SESSION_SECRET` (required, use a long random value)  
+   - `CMS_ASSET_BASE_URL` (optional, for example `https://assets.example.com`)
+
+If `CMS_ASSET_BASE_URL` is empty, images are served through `/api/assets/:key`.
+
+Reference files:
+- `wrangler.toml.example`
+- `.dev.vars.example`
+
+## D1 schema
+
+Run the SQL in:
+- `migrations/0001_cms.sql`
+
+## Admin path
+
+- URL: `/admin/`
+- Features:
+  - login/logout
+  - create/update/delete projects
+  - hero image upload to R2
+  - detail image batch upload to R2
+  - publish toggle and sort order
+
+## API overview
+
+Public:
+- `GET /api/projects`
+- `GET /api/assets/:key`
+
+Admin (auth required):
+- `POST /api/admin/login`
+- `POST /api/admin/logout`
+- `GET /api/admin/session`
+- `GET /api/admin/projects`
+- `POST /api/admin/projects`
+- `PUT /api/admin/projects/:id`
+- `DELETE /api/admin/projects/:id`
+- `POST /api/admin/upload`

@@ -1,0 +1,76 @@
+.admin-shell {
+  min-height: 100vh;
+  background:
+    radial-gradient(1200px 600px at 100% -20%, rgb(212 255 58 / 0.07), transparent 55%),
+    radial-gradient(900px 500px at -10% 0%, rgb(255 255 255 / 0.04), transparent 45%),
+    var(--color-bg);
+  color: var(--color-fg);
+}
+
+.admin-layout {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: 320px minmax(0, 1fr);
+}
+
+@media (max-width: 980px) {
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-panel {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: rgb(20 20 20 / 0.75);
+  backdrop-filter: blur(6px);
+}
+
+.admin-input,
+.admin-textarea,
+.admin-select {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: rgb(10 10 10 / 0.6);
+  color: var(--color-fg);
+  padding: 10px 12px;
+}
+
+.admin-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.admin-btn {
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+  color: var(--color-fg);
+}
+
+.admin-btn.primary {
+  background: var(--color-accent);
+  color: var(--color-bg);
+  border-color: transparent;
+}
+
+.admin-btn.danger {
+  border-color: rgb(255 132 132 / 0.45);
+  color: rgb(255 178 178);
+}
+
+.admin-list-item {
+  width: 100%;
+  text-align: left;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.admin-list-item.active {
+  border-color: var(--color-border-strong);
+  background: rgb(255 255 255 / 0.04);
+}

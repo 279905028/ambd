@@ -1,0 +1,4 @@
+CMS_ADMIN_USERNAME=admin
+CMS_ADMIN_PASSWORD=change_me
+CMS_SESSION_SECRET=replace_with_a_long_random_secret
+CMS_ASSET_BASE_URL=
