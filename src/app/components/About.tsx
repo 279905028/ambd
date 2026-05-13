@@ -99,38 +99,7 @@ export function About({ onClose }: { onClose: () => void }) {
             </p>
           </div>
 
-          <div className="md:col-span-5 grid grid-cols-2 gap-y-8 gap-x-6">
-            {[
-              { label: 'Founded', value: '2018' },
-              { label: 'Location', value: 'Hangzhou / 杭州' },
-              { label: 'Team', value: '8 people' },
-              { label: 'Projects', value: '120+' },
-            ].map((s) => (
-              <div key={s.label}>
-                <div
-                  style={{
-                    fontSize: 'var(--text-mono)',
-                    letterSpacing: 'var(--text-mono--letter-spacing)',
-                    textTransform: 'uppercase',
-                    color: 'var(--color-fg-subtle)',
-                    marginBottom: '0.5rem',
-                  }}
-                >
-                  {s.label}
-                </div>
-                <div
-                  style={{
-                    fontSize: 'var(--text-h3)',
-                    lineHeight: 'var(--text-h3--line-height)',
-                    letterSpacing: 'var(--text-h3--letter-spacing)',
-                    color: 'var(--color-fg)',
-                  }}
-                >
-                  {s.value}
-                </div>
-              </div>
-            ))}
-          </div>
+          
         </div>
 
         <div
@@ -171,9 +140,9 @@ export function About({ onClose }: { onClose: () => void }) {
             </h2>
             <ul className="space-y-3">
               {[
-                { k: 'Email', v: 'hello@ambd2.studio', href: 'mailto:hello@ambd2.studio' },
-                { k: 'WeChat', v: 'ambd2-studio' },
-                { k: 'Instagram', v: '@ambd2.studio' },
+                { k: 'Email', v: 'ambdes@163.com', href: 'mailto:ambdes@163.com' },
+                { k: 'WeChat', v: '13115831126' },
+                { k: 'Instagram', v: '@ambd.studio' },
               ].map((it) => (
                 <li key={it.k} className="flex items-baseline gap-6">
                   <span
@@ -235,34 +204,11 @@ export function About({ onClose }: { onClose: () => void }) {
                 color: 'var(--color-fg-subtle)',
               }}
             >
-              <svg
-                width="60%"
-                height="60%"
-                viewBox="0 0 100 100"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-              >
-                {Array.from({ length: 100 }).map((_, i) => {
-                  const x = i % 10;
-                  const y = Math.floor(i / 10);
-                  const filled = (x * 13 + y * 7 + (x ^ y)) % 3 === 0;
-                  if (!filled) return null;
-                  return (
-                    <rect
-                      key={i}
-                      x={x * 10}
-                      y={y * 10}
-                      width="10"
-                      height="10"
-                      fill="currentColor"
-                    />
-                  );
-                })}
-                <rect x="0" y="0" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="6" />
-                <rect x="70" y="0" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="6" />
-                <rect x="0" y="70" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="6" />
-              </svg>
+              <img
+                src="src/imports/wechat-qr.png"
+                alt="WeChat QR Code"
+                className="w-full h-full object-contain p-4"
+              />
             </div>
             <p
               className="mt-4"

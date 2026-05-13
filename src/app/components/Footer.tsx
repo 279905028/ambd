@@ -12,7 +12,7 @@ export function Footer() {
       >
         <span style={{ color: 'var(--color-fg-subtle)' }}>(CTA)</span>
         <span style={{ color: 'var(--color-fg-muted)', textTransform: 'uppercase' }}>
-          Currently accepting projects · Q3 2026
+          Currently accepting projects
         </span>
       </div>
       <h2
@@ -33,7 +33,7 @@ export function Footer() {
 
       <div className="mt-16 flex flex-wrap items-center gap-4">
         <a
-          href="mailto:hello@ambd2.studio"
+          href="mailto:ambdes@163.com"
           className="inline-flex items-center gap-3 px-6 py-4"
           style={{
             background: 'var(--color-accent)',
@@ -42,10 +42,10 @@ export function Footer() {
             fontSize: 'var(--text-body)',
           }}
         >
-          hello@ambd2.studio <ArrowUpRight size={18} />
+          ambdes@163.com <ArrowUpRight size={18} />
         </a>
         <a
-          href="mailto:hello@ambd2.studio?subject=Project%20Inquiry"
+          href="mailto:ambdes@163.com?subject=Project%20Inquiry"
           className="inline-flex items-center gap-3 px-6 py-4"
           style={{
             border: '1px solid var(--color-border-strong)',
@@ -69,7 +69,7 @@ export function Footer() {
         <div>
           <div style={{ color: 'var(--color-fg-subtle)' }}>Studio</div>
           <div className="mt-2" style={{ color: 'var(--color-fg)' }}>
-            Hangzhou · Shanghai · Remote
+            Shanghai · Wenzhou · Remote
           </div>
         </div>
         <div>
@@ -77,15 +77,15 @@ export function Footer() {
           <ul className="mt-2 space-y-1">
             <li><a href="#top" className="link-underline">Top</a></li>
             <li><a href="#works" className="link-underline">Works</a></li>
-            <li><a href="mailto:hello@ambd2.studio" className="link-underline">Contact</a></li>
+            <li><a href="mailto:ambdes@163.com" className="link-underline">Contact</a></li>
           </ul>
         </div>
         <div>
           <div style={{ color: 'var(--color-fg-subtle)' }}>Elsewhere</div>
           <ul className="mt-2 space-y-1">
-            <li>Instagram: @ambd2.studio</li>
-            <li>WeChat: ambd2-studio</li>
-            <li><a href="mailto:hello@ambd2.studio" className="link-underline">Email</a></li>
+            <li>Instagram: @ambd.studio</li>
+            <li>WeChat: 1315831126</li>
+            <li><a href="mailto:ambdes@163.com" className="link-underline">Email: ambdes@163.com</a></li>
           </ul>
         </div>
         <div className="md:text-right">
