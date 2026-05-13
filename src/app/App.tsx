@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Nav } from './components/Nav';
-import { Hero } from './components/Hero';
 import { WorksGrid } from './components/WorksGrid';
 import { Marquee } from './components/Marquee';
 import { Footer } from './components/Footer';
@@ -39,7 +38,6 @@ export default function App() {
     >
       <Nav onAboutClick={() => setAboutOpen(true)} />
       <main>
-        <Hero />
         <Marquee />
         {loading ? (
           <section id="works" className="px-6 md:px-10 pb-32">
