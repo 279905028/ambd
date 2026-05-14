@@ -1,4 +1,6 @@
-export const onRequestGet = async (context: any) => {
+import type { RouteContext } from '../../_shared/context';
+
+export const onRequestGet = async (context: RouteContext<{ key: string }>) => {
   const rawKey = String(context.params?.key || '');
   const key = rawKey ? decodeURIComponent(rawKey) : '';
   if (!key) return new Response('Not Found', { status: 404 });

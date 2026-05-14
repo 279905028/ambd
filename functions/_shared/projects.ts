@@ -1,3 +1,5 @@
+import type { Env } from './context';
+
 export type ProjectRow = {
   id: string;
   number: string;
@@ -25,7 +27,7 @@ type ProjectInput = {
   published?: boolean;
 };
 
-export function buildAssetUrl(env: any, key: string) {
+export function buildAssetUrl(env: Env, key: string) {
   const base = String(env.CMS_ASSET_BASE_URL || '').trim().replace(/\/+$/, '');
   if (base) return `${base}/${encodeURIComponent(key)}`;
   return `/api/assets/${encodeURIComponent(key)}`;
@@ -41,7 +43,7 @@ function parseDetailKeys(raw: string) {
   }
 }
 
-export function mapProjectRow(env: any, row: ProjectRow) {
+export function mapProjectRow(env: Env, row: ProjectRow) {
   const detailKeys = parseDetailKeys(row.detail_keys);
   return {
     id: row.id,
@@ -61,7 +63,7 @@ export function mapProjectRow(env: any, row: ProjectRow) {
   };
 }
 
-export function mapPublicProject(env: any, row: ProjectRow) {
+export function mapPublicProject(env: Env, row: ProjectRow) {
   const mapped = mapProjectRow(env, row);
   return {
     id: mapped.id,

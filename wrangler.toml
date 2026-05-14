@@ -1,6 +1,10 @@
 name = "ambd2-portfolio"
-compatibility_date = "2026-05-12"
+main = "./worker/index.ts"
+compatibility_date = "2026-05-14"
 
+[assets]
+directory = "./dist"
+not_found_handling = "single-page-application"
 
 [[d1_databases]]
 binding = "DB"
@@ -9,5 +13,5 @@ database_id = "bad38aa5-8d1d-4689-bc8b-48444228529b"
 
 
 [[r2_buckets]]
-binding = "ASSETS_BUCKET"
+binding = "ASSETS"
 bucket_name = "portfolio-assets"

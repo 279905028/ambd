@@ -2,7 +2,7 @@
 
 This repository now includes:
 - Portfolio site (Vite + React).
-- Cloudflare Pages Functions API.
+- Cloudflare Workers API.
 - R2 image storage.
 - D1 content storage.
 - Minimal admin UI at `/admin/`.
@@ -14,23 +14,39 @@ npm install
 npm run dev
 ```
 
+Frontend-only development runs with Vite.
+
+To run the full stack locally with Workers bindings and API routes:
+
+```bash
+npm run build
+npm run cf:dev
+```
+
 ## Build
 
 ```bash
 npm run build
 ```
 
-## Cloudflare Pages build settings
+## Deploy to Cloudflare Workers
 
-- Framework preset: `Vite`
-- Build command: `npm run build`
-- Build output directory: `dist`
-- Production branch: `main`
-- Node.js version: `20`
+This project deploys as a Worker with static assets:
+
+- Worker entry: `worker/index.ts`
+- Static assets directory: `dist`
+- Wrangler config: `wrangler.toml`
+
+Deploy with:
+
+```bash
+npm run build
+npm run cf:deploy
+```
 
 ## Required Cloudflare bindings
 
-Add these in Pages project settings:
+Configure these in your Worker settings or `wrangler.toml`:
 
 1. D1 binding  
    - Variable name: `DB`  
@@ -49,7 +65,7 @@ Add these in Pages project settings:
 If `CMS_ASSET_BASE_URL` is empty, images are served through `/api/assets/:key`.
 
 Reference files:
-- `wrangler.toml.example`
+- `wrangler.toml`
 - `.dev.vars.example`
 
 ## D1 schema

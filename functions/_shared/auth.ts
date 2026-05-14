@@ -1,4 +1,5 @@
 import { json, unauthorized } from './response';
+import type { Env, RouteContext } from './context';
 
 const SESSION_COOKIE = 'cms_session';
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
@@ -57,21 +58,21 @@ function safeCompare(a: string, b: string) {
   return result === 0;
 }
 
-export function getAdminUsername(env: any): string {
+export function getAdminUsername(env: Env): string {
   return env.CMS_ADMIN_USERNAME || 'admin';
 }
 
-export function getSessionSecret(env: any): string | null {
+export function getSessionSecret(env: Env): string | null {
   const secret = String(env.CMS_SESSION_SECRET || '').trim();
   return secret || null;
 }
 
-export function getAdminPassword(env: any): string | null {
+export function getAdminPassword(env: Env): string | null {
   const password = String(env.CMS_ADMIN_PASSWORD || '').trim();
   return password || null;
 }
 
-export async function createSessionCookie(env: any, username: string) {
+export async function createSessionCookie(env: Env, username: string) {
   const payload: SessionPayload = {
     u: username,
     exp: Math.floor(Date.now() / 1000) + SESSION_TTL_SECONDS,
@@ -89,7 +90,7 @@ export function clearSessionCookie() {
   return `${SESSION_COOKIE}=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`;
 }
 
-export async function readSession(context: any): Promise<SessionPayload | null> {
+export async function readSession(context: RouteContext): Promise<SessionPayload | null> {
   const cookies = parseCookies(context.request.headers.get('cookie'));
   const token = cookies[SESSION_COOKIE];
   if (!token) return null;
@@ -111,13 +112,13 @@ export async function readSession(context: any): Promise<SessionPayload | null> 
   }
 }
 
-export async function requireAuth(context: any) {
+export async function requireAuth(context: RouteContext) {
   const session = await readSession(context);
   if (!session) return unauthorized();
   return null;
 }
 
-export async function loginHandler(context: any) {
+export async function loginHandler(context: RouteContext) {
   const username = getAdminUsername(context.env);
   const password = getAdminPassword(context.env);
   if (!password || !getSessionSecret(context.env)) {

@@ -4,14 +4,15 @@ import {
   type ProjectRow,
 } from '../../../_shared/projects';
 import { badRequest, json, notFound } from '../../../_shared/response';
+import type { RouteContext } from '../../../_shared/context';
 
-async function getProjectById(context: any, id: string) {
+async function getProjectById(context: RouteContext, id: string) {
   return context.env.DB.prepare('SELECT * FROM projects WHERE id = ?')
     .bind(id)
     .first<ProjectRow>();
 }
 
-export const onRequestPut = async (context: any) => {
+export const onRequestPut = async (context: RouteContext<{ id: string }>) => {
   const denied = await requireAuth(context);
   if (denied) return denied;
 
@@ -21,7 +22,7 @@ export const onRequestPut = async (context: any) => {
   const exists = await getProjectById(context, id);
   if (!exists) return notFound('Project not found');
 
-  let body: any;
+  let body: unknown;
   try {
     body = await context.request.json();
   } catch {
@@ -30,7 +31,7 @@ export const onRequestPut = async (context: any) => {
 
   let input;
   try {
-    input = normalizeProjectInput(body);
+    input = normalizeProjectInput(body as Record<string, unknown>);
   } catch (error: any) {
     return badRequest(error?.message || 'Invalid payload');
   }
@@ -64,7 +65,7 @@ export const onRequestPut = async (context: any) => {
   return json({ ok: true });
 };
 
-export const onRequestDelete = async (context: any) => {
+export const onRequestDelete = async (context: RouteContext<{ id: string }>) => {
   const denied = await requireAuth(context);
   if (denied) return denied;
 

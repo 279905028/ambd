@@ -1,6 +1,7 @@
 import { requireAuth } from '../../_shared/auth';
 import { buildAssetUrl } from '../../_shared/projects';
 import { badRequest, json } from '../../_shared/response';
+import type { RouteContext } from '../../_shared/context';
 
 function sanitizeFilename(name: string) {
   return name
@@ -11,7 +12,7 @@ function sanitizeFilename(name: string) {
     .slice(0, 80);
 }
 
-export const onRequestPost = async (context: any) => {
+export const onRequestPost = async (context: RouteContext) => {
   const denied = await requireAuth(context);
   if (denied) return denied;
 
