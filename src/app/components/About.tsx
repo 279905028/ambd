@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { X } from 'lucide-react';
+import wechatQr from '../../imports/wechat-qr.png';
 
 export function About({ onClose }: { onClose: () => void }) {
   useEffect(() => {
@@ -205,7 +206,7 @@ export function About({ onClose }: { onClose: () => void }) {
               }}
             >
               <img
-                src="src/imports/wechat-qr.png"
+                src={wechatQr}
                 alt="WeChat QR Code"
                 className="w-full h-full object-contain p-4"
               />
