@@ -100,7 +100,7 @@ function deriveAssetUrl(key: string) {
   return `/api/assets/${encodeURIComponent(key)}`;
 }
 
-function moveItem(items: string[], fromIndex: number, toIndex: number) {
+function moveItem<T>(items: T[], fromIndex: number, toIndex: number) {
   if (
     fromIndex < 0 ||
     toIndex < 0 ||
@@ -115,6 +115,27 @@ function moveItem(items: string[], fromIndex: number, toIndex: number) {
   const [item] = next.splice(fromIndex, 1);
   next.splice(toIndex, 0, item);
   return next;
+}
+
+function toProjectUpdatePayload(project: AdminProject) {
+  return {
+    number: project.number,
+    slug: project.slug,
+    title: project.title,
+    category: project.category,
+    description: project.description,
+    heroKey: project.heroKey,
+    detailKeys: project.detailKeys,
+    sortOrder: project.sortOrder,
+    published: project.published,
+  };
+}
+
+function normalizeProjectSortOrders(items: AdminProject[]) {
+  return items.map((item, index) => ({
+    ...item,
+    sortOrder: index + 1,
+  }));
 }
 
 export function AdminApp() {
@@ -250,6 +271,62 @@ export function AdminApp() {
       await loadProjects();
     } catch (err: any) {
       setError(err?.message || 'Delete failed');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleProjectReorder(projectId: string, direction: 'up' | 'down') {
+    if (busy) return;
+
+    const currentIndex = projects.findIndex((item) => item.id === projectId);
+    if (currentIndex < 0) return;
+
+    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    if (targetIndex < 0 || targetIndex >= projects.length) return;
+
+    const previousProjects = projects;
+    const reorderedProjects = normalizeProjectSortOrders(
+      moveItem(projects, currentIndex, targetIndex),
+    );
+    const changedProjects = reorderedProjects.filter((item) => {
+      const previous = previousProjects.find((project) => project.id === item.id);
+      return !previous || previous.sortOrder !== item.sortOrder;
+    });
+
+    setBusy(true);
+    setError('');
+    setMessage('');
+    setProjects(reorderedProjects);
+    setDraft((prev) => {
+      if (!prev.id) return prev;
+      const updatedSelected = reorderedProjects.find((item) => item.id === prev.id);
+      return updatedSelected
+        ? { ...prev, sortOrder: updatedSelected.sortOrder }
+        : prev;
+    });
+
+    try {
+      await Promise.all(
+        changedProjects.map((project) =>
+          apiRequest(`/api/admin/projects/${project.id}`, {
+            method: 'PUT',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify(toProjectUpdatePayload(project)),
+          }),
+        ),
+      );
+      setMessage('Project order updated');
+    } catch (err: any) {
+      setProjects(previousProjects);
+      setDraft((prev) => {
+        if (!prev.id) return prev;
+        const previousSelected = previousProjects.find((item) => item.id === prev.id);
+        return previousSelected
+          ? { ...prev, sortOrder: previousSelected.sortOrder }
+          : prev;
+      });
+      setError(err?.message || 'Project reorder failed');
     } finally {
       setBusy(false);
     }
@@ -413,27 +490,54 @@ export function AdminApp() {
             </button>
           </div>
           <div className="space-y-2 max-h-[70vh] overflow-auto pr-1">
-            {projects.map((item) => (
-              <button
-                type="button"
-                key={item.id}
-                className={`admin-list-item ${item.id === selectedId ? 'active' : ''}`}
-                onClick={() => {
-                  setSelectedId(item.id);
-                  setDraft(draftFromProject(item));
-                }}
-              >
-                <div style={{ fontSize: '0.82rem', color: 'var(--color-fg-subtle)' }}>
-                  {item.number || '--'} / {item.slug}
+            {projects.map((item, index) => (
+              <div key={item.id} className="admin-list-row">
+                <button
+                  type="button"
+                  className={`admin-list-item ${item.id === selectedId ? 'active' : ''}`}
+                  onClick={() => {
+                    setSelectedId(item.id);
+                    setDraft(draftFromProject(item));
+                  }}
+                >
+                  <div
+                    className="flex items-center justify-between gap-3"
+                    style={{ fontSize: '0.82rem', color: 'var(--color-fg-subtle)' }}
+                  >
+                    <span>
+                      {item.number || '--'} / {item.slug}
+                    </span>
+                    <span>#{item.sortOrder}</span>
+                  </div>
+                  <div style={{ marginTop: 6 }}>{item.title}</div>
+                </button>
+                <div className="admin-list-actions">
+                  <button
+                    type="button"
+                    className="admin-icon-btn"
+                    aria-label={`Move ${item.title} up`}
+                    disabled={busy || index === 0}
+                    onClick={() => void handleProjectReorder(item.id, 'up')}
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-icon-btn"
+                    aria-label={`Move ${item.title} down`}
+                    disabled={busy || index === projects.length - 1}
+                    onClick={() => void handleProjectReorder(item.id, 'down')}
+                  >
+                    ↓
+                  </button>
                 </div>
-                <div style={{ marginTop: 6 }}>{item.title}</div>
-              </button>
+              </div>
             ))}
           </div>
         </aside>
 
         <section className="admin-panel p-5 md:p-6 space-y-5">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <label>
               <div style={{ marginBottom: 8, color: 'var(--color-fg-muted)' }}>Number</div>
               <input
@@ -450,15 +554,6 @@ export function AdminApp() {
                 value={draft.slug}
                 onChange={(e) => setField('slug', e.target.value)}
                 placeholder="project-slug"
-              />
-            </label>
-            <label>
-              <div style={{ marginBottom: 8, color: 'var(--color-fg-muted)' }}>Sort Order</div>
-              <input
-                type="number"
-                className="admin-input"
-                value={draft.sortOrder}
-                onChange={(e) => setField('sortOrder', Number(e.target.value || 0))}
               />
             </label>
           </div>
