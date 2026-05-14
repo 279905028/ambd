@@ -100,6 +100,23 @@ function deriveAssetUrl(key: string) {
   return `/api/assets/${encodeURIComponent(key)}`;
 }
 
+function moveItem(items: string[], fromIndex: number, toIndex: number) {
+  if (
+    fromIndex < 0 ||
+    toIndex < 0 ||
+    fromIndex >= items.length ||
+    toIndex >= items.length ||
+    fromIndex === toIndex
+  ) {
+    return items;
+  }
+
+  const next = [...items];
+  const [item] = next.splice(fromIndex, 1);
+  next.splice(toIndex, 0, item);
+  return next;
+}
+
 export function AdminApp() {
   const [checkingSession, setCheckingSession] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
@@ -299,6 +316,14 @@ export function AdminApp() {
 
   function setField<K extends keyof Draft>(field: K, value: Draft[K]) {
     setDraft((prev) => ({ ...prev, [field]: value }));
+  }
+
+  function moveDetailImage(index: number, direction: 'up' | 'down') {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    setDraft((prev) => ({
+      ...prev,
+      detailKeys: moveItem(prev.detailKeys, index, targetIndex),
+    }));
   }
 
   if (checkingSession) {
@@ -508,8 +533,17 @@ export function AdminApp() {
             />
             {draft.detailKeys.length ? (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {draft.detailKeys.map((key) => (
+                {draft.detailKeys.map((key, index) => (
                   <div key={key} className="admin-panel p-2">
+                    <div
+                      className="flex items-center justify-between mb-2"
+                      style={{ color: 'var(--color-fg-muted)', fontSize: '0.85rem' }}
+                    >
+                      <span>#{index + 1}</span>
+                      <span className="truncate max-w-[65%]" title={key}>
+                        {key}
+                      </span>
+                    </div>
                     <img
                       src={draft.assetUrls[key] || deriveAssetUrl(key)}
                       alt={key}
@@ -520,18 +554,36 @@ export function AdminApp() {
                         borderRadius: 8,
                       }}
                     />
-                    <button
-                      type="button"
-                      className="admin-btn danger mt-2"
-                      onClick={() =>
-                        setField(
-                          'detailKeys',
-                          draft.detailKeys.filter((item) => item !== key),
-                        )
-                      }
-                    >
-                      Remove
-                    </button>
+                    <div className="admin-image-actions">
+                      <button
+                        type="button"
+                        className="admin-btn"
+                        disabled={index === 0}
+                        onClick={() => moveDetailImage(index, 'up')}
+                      >
+                        Up
+                      </button>
+                      <button
+                        type="button"
+                        className="admin-btn"
+                        disabled={index === draft.detailKeys.length - 1}
+                        onClick={() => moveDetailImage(index, 'down')}
+                      >
+                        Down
+                      </button>
+                      <button
+                        type="button"
+                        className="admin-btn danger"
+                        onClick={() =>
+                          setField(
+                            'detailKeys',
+                            draft.detailKeys.filter((item) => item !== key),
+                          )
+                        }
+                      >
+                        Remove
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
