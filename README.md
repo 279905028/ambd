@@ -44,6 +44,8 @@ npm run build
 npm run cf:deploy
 ```
 
+Wrangler `4.90.1` requires Node.js `22+` for local development and deployment.
+
 ## Required Cloudflare bindings
 
 Configure these in your Worker settings or `wrangler.toml`:
