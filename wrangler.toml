@@ -1,11 +1,13 @@
 name = "ambd2-portfolio"
 compatibility_date = "2026-05-12"
 
+
 [[d1_databases]]
 binding = "DB"
 database_name = "portfolio-cms"
-database_id = "REPLACE_WITH_D1_DATABASE_ID"
+database_id = "bad38aa5-8d1d-4689-bc8b-48444228529b"
+
 
 [[r2_buckets]]
-binding = "ASSETS"
+binding = "ASSETS_BUCKET"
 bucket_name = "portfolio-assets"
