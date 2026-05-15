@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import type { PublicProject } from '../lib/cms';
 
@@ -9,18 +9,38 @@ export function ProjectDetail({
   project: PublicProject;
   onClose: () => void;
 }) {
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
+  const images = [project.hero, ...project.details];
+
+  function movePreview(direction: 'prev' | 'next') {
+    setPreviewIndex((current) => {
+      if (current === null) return current;
+      const delta = direction === 'prev' ? -1 : 1;
+      return (current + delta + images.length) % images.length;
+    });
+  }
+
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        if (previewIndex !== null) {
+          setPreviewIndex(null);
+          return;
+        }
+        onClose();
+      }
+      if (previewIndex === null) return;
+      if (e.key === 'ArrowLeft') movePreview('prev');
+      if (e.key === 'ArrowRight') movePreview('next');
     };
     window.addEventListener('keydown', onKey);
     return () => {
       document.body.style.overflow = prev;
       window.removeEventListener('keydown', onKey);
     };
-  }, [onClose]);
+  }, [onClose, previewIndex, images.length]);
 
   return (
     <div
@@ -99,6 +119,8 @@ export function ProjectDetail({
             src={project.hero}
             alt={project.title}
             className="w-full h-full object-cover"
+            onClick={() => setPreviewIndex(0)}
+            style={{ cursor: 'zoom-in' }}
           />
         </div>
 
@@ -117,11 +139,97 @@ export function ProjectDetail({
                 alt={`${project.title} ${i + 2}`}
                 className="w-full h-full object-cover"
                 loading="lazy"
+                onClick={() => setPreviewIndex(i + 1)}
+                style={{ cursor: 'zoom-in' }}
               />
             </div>
           ))}
         </div>
       </div>
+
+      {previewIndex !== null ? (
+        <div
+          className="fixed inset-0 z-[260] flex items-center justify-center p-6 md:p-10"
+          style={{ background: 'rgb(8 8 8 / 0.92)' }}
+          onClick={() => setPreviewIndex(null)}
+        >
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setPreviewIndex(null);
+            }}
+            className="fixed top-6 right-6 z-[270] inline-flex items-center gap-2 px-4 py-2 transition-colors"
+            style={{
+              borderRadius: 'var(--radius-pill)',
+              border: '1px solid rgb(255 255 255 / 0.18)',
+              background: 'rgb(20 20 20 / 0.7)',
+              color: '#fff',
+              fontSize: 'var(--text-small)',
+            }}
+          >
+            Close <X size={14} />
+          </button>
+
+          {images.length > 1 ? (
+            <>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  movePreview('prev');
+                }}
+                className="absolute left-4 md:left-6 z-[270] px-4 py-3"
+                style={{
+                  borderRadius: 'var(--radius-pill)',
+                  border: '1px solid rgb(255 255 255 / 0.16)',
+                  background: 'rgb(20 20 20 / 0.72)',
+                  color: '#fff',
+                }}
+              >
+                Prev
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  movePreview('next');
+                }}
+                className="absolute right-4 md:right-6 z-[270] px-4 py-3"
+                style={{
+                  borderRadius: 'var(--radius-pill)',
+                  border: '1px solid rgb(255 255 255 / 0.16)',
+                  background: 'rgb(20 20 20 / 0.72)',
+                  color: '#fff',
+                }}
+              >
+                Next
+              </button>
+            </>
+          ) : null}
+
+          <div
+            className="max-w-[92vw] max-h-[88vh] flex flex-col items-center gap-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={images[previewIndex]}
+              alt={`${project.title} preview ${previewIndex + 1}`}
+              className="block max-w-full max-h-[80vh] object-contain"
+            />
+            <div
+              style={{
+                color: 'rgb(255 255 255 / 0.78)',
+                fontSize: 'var(--text-small)',
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+              }}
+            >
+              {previewIndex + 1} / {images.length}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
