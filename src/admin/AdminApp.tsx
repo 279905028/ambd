@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type DragEvent, type FormEvent } from 'react';
 
 type AdminProject = {
   id: string;
@@ -149,6 +149,8 @@ export function AdminApp() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [draggedProjectId, setDraggedProjectId] = useState<string | null>(null);
+  const [draggedDetailKey, setDraggedDetailKey] = useState<string | null>(null);
 
   const selectedProject = useMemo(
     () => projects.find((item) => item.id === selectedId) || null,
@@ -276,23 +278,14 @@ export function AdminApp() {
     }
   }
 
-  async function handleProjectReorder(projectId: string, direction: 'up' | 'down') {
-    if (busy) return;
-
-    const currentIndex = projects.findIndex((item) => item.id === projectId);
-    if (currentIndex < 0) return;
-
-    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-    if (targetIndex < 0 || targetIndex >= projects.length) return;
-
+  async function persistProjectOrder(reorderedProjects: AdminProject[]) {
     const previousProjects = projects;
-    const reorderedProjects = normalizeProjectSortOrders(
-      moveItem(projects, currentIndex, targetIndex),
-    );
     const changedProjects = reorderedProjects.filter((item) => {
       const previous = previousProjects.find((project) => project.id === item.id);
       return !previous || previous.sortOrder !== item.sortOrder;
     });
+
+    if (changedProjects.length === 0) return;
 
     setBusy(true);
     setError('');
@@ -330,6 +323,26 @@ export function AdminApp() {
     } finally {
       setBusy(false);
     }
+  }
+
+  async function handleProjectDrop(targetProjectId: string) {
+    if (busy || !draggedProjectId || draggedProjectId === targetProjectId) {
+      setDraggedProjectId(null);
+      return;
+    }
+
+    const currentIndex = projects.findIndex((item) => item.id === draggedProjectId);
+    const targetIndex = projects.findIndex((item) => item.id === targetProjectId);
+    if (currentIndex < 0 || targetIndex < 0 || currentIndex === targetIndex) {
+      setDraggedProjectId(null);
+      return;
+    }
+
+    const reorderedProjects = normalizeProjectSortOrders(
+      moveItem(projects, currentIndex, targetIndex),
+    );
+    setDraggedProjectId(null);
+    await persistProjectOrder(reorderedProjects);
   }
 
   async function uploadOne(file: File) {
@@ -395,12 +408,21 @@ export function AdminApp() {
     setDraft((prev) => ({ ...prev, [field]: value }));
   }
 
-  function moveDetailImage(index: number, direction: 'up' | 'down') {
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+  function handleDetailImageDrop(targetKey: string) {
+    if (!draggedDetailKey || draggedDetailKey === targetKey) {
+      setDraggedDetailKey(null);
+      return;
+    }
+
     setDraft((prev) => ({
       ...prev,
-      detailKeys: moveItem(prev.detailKeys, index, targetIndex),
+      detailKeys: moveItem(
+        prev.detailKeys,
+        prev.detailKeys.indexOf(draggedDetailKey),
+        prev.detailKeys.indexOf(targetKey),
+      ),
     }));
+    setDraggedDetailKey(null);
   }
 
   if (checkingSession) {
@@ -490,8 +512,23 @@ export function AdminApp() {
             </button>
           </div>
           <div className="space-y-2 max-h-[70vh] overflow-auto pr-1">
-            {projects.map((item, index) => (
-              <div key={item.id} className="admin-list-row">
+            {projects.map((item) => (
+              <div
+                key={item.id}
+                className={`admin-list-row ${draggedProjectId === item.id ? 'dragging' : ''}`}
+                draggable={!busy}
+                onDragStart={(event: DragEvent<HTMLDivElement>) => {
+                  setDraggedProjectId(item.id);
+                  event.dataTransfer.effectAllowed = 'move';
+                  event.dataTransfer.setData('text/plain', item.id);
+                }}
+                onDragEnd={() => setDraggedProjectId(null)}
+                onDragOver={(event: DragEvent<HTMLDivElement>) => {
+                  event.preventDefault();
+                  event.dataTransfer.dropEffect = 'move';
+                }}
+                onDrop={() => void handleProjectDrop(item.id)}
+              >
                 <button
                   type="button"
                   className={`admin-list-item ${item.id === selectedId ? 'active' : ''}`}
@@ -509,28 +546,9 @@ export function AdminApp() {
                     </span>
                     <span>#{item.sortOrder}</span>
                   </div>
+                  <div className="admin-drag-note">Drag to reorder</div>
                   <div style={{ marginTop: 6 }}>{item.title}</div>
                 </button>
-                <div className="admin-list-actions">
-                  <button
-                    type="button"
-                    className="admin-icon-btn"
-                    aria-label={`Move ${item.title} up`}
-                    disabled={busy || index === 0}
-                    onClick={() => void handleProjectReorder(item.id, 'up')}
-                  >
-                    ↑
-                  </button>
-                  <button
-                    type="button"
-                    className="admin-icon-btn"
-                    aria-label={`Move ${item.title} down`}
-                    disabled={busy || index === projects.length - 1}
-                    onClick={() => void handleProjectReorder(item.id, 'down')}
-                  >
-                    ↓
-                  </button>
-                </div>
               </div>
             ))}
           </div>
@@ -629,7 +647,22 @@ export function AdminApp() {
             {draft.detailKeys.length ? (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {draft.detailKeys.map((key, index) => (
-                  <div key={key} className="admin-panel p-2">
+                  <div
+                    key={key}
+                    className={`admin-panel p-2 admin-image-card ${draggedDetailKey === key ? 'dragging' : ''}`}
+                    draggable
+                    onDragStart={(event: DragEvent<HTMLDivElement>) => {
+                      setDraggedDetailKey(key);
+                      event.dataTransfer.effectAllowed = 'move';
+                      event.dataTransfer.setData('text/plain', key);
+                    }}
+                    onDragEnd={() => setDraggedDetailKey(null)}
+                    onDragOver={(event: DragEvent<HTMLDivElement>) => {
+                      event.preventDefault();
+                      event.dataTransfer.dropEffect = 'move';
+                    }}
+                    onDrop={() => handleDetailImageDrop(key)}
+                  >
                     <div
                       className="flex items-center justify-between mb-2"
                       style={{ color: 'var(--color-fg-muted)', fontSize: '0.85rem' }}
@@ -639,6 +672,7 @@ export function AdminApp() {
                         {key}
                       </span>
                     </div>
+                    <div className="admin-drag-note">Drag to reorder</div>
                     <img
                       src={draft.assetUrls[key] || deriveAssetUrl(key)}
                       alt={key}
@@ -650,22 +684,6 @@ export function AdminApp() {
                       }}
                     />
                     <div className="admin-image-actions">
-                      <button
-                        type="button"
-                        className="admin-btn"
-                        disabled={index === 0}
-                        onClick={() => moveDetailImage(index, 'up')}
-                      >
-                        Up
-                      </button>
-                      <button
-                        type="button"
-                        className="admin-btn"
-                        disabled={index === draft.detailKeys.length - 1}
-                        onClick={() => moveDetailImage(index, 'down')}
-                      >
-                        Down
-                      </button>
                       <button
                         type="button"
                         className="admin-btn danger"
